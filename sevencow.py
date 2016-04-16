@@ -27,6 +27,8 @@ b.stat('a')
 b.delete('a')
 b.copy('a', 'c')
 b.move('a', 'c')
+b.fetch('http://www.baidu.com/', 'baidu.html')
+b.fetch('http://www.baidu.com/')
 """
 
 
@@ -34,6 +36,7 @@ b.move('a', 'c')
 RS_HOST = 'http://rs.qbox.me'
 UP_HOST = 'http://up.qbox.me'
 RSF_HOST = 'http://rsf.qbox.me'
+IOVIP_HOST = 'http://iovip.qbox.me'
 
 
 class CowException(Exception):
@@ -129,6 +132,7 @@ class Cow(object):
         self.delete = functools.partial(self._stat_rm_handler, 'delete')
         self.copy = functools.partial(self._cp_mv_handler, 'copy')
         self.move = functools.partial(self._cp_mv_handler, 'move')
+        self.fetch = functools.partial(self._fetch_handler, 'fetch')
 
     def get_bucket(self, bucket):
         """对一个bucket的文件进行操作，
@@ -264,6 +268,16 @@ class Cow(object):
         return self.api_call(url)
 
 
+    def _fetch_handler(self, action, bucket, fileurl, filename = None):
+        url = '%s/%s/%s/to/%s' % (
+                IOVIP_HOST, 
+                action, 
+                urlsafe_b64encode(fileurl),
+                urlsafe_b64encode('%s:%s' % (bucket, filename)) if filename else urlsafe_b64encode(bucket)
+        )
+        return self.api_call(url)
+                
+
 class Bucket(object):
     def __init__(self, cow, bucket):
         self.cow = cow
@@ -283,6 +297,9 @@ class Bucket(object):
 
     def move(self, *args):
         return self.cow.move(self._build_cp_mv_args(*args))
+
+    def fetch(self, *args):
+        return self.cow.fetch(self.bucket, *args)
 
     def list_files(self, marker=None, limit=None, prefix=None):
         return self.cow.list_files(self.bucket, marker=marker, limit=limit, prefix=prefix)
