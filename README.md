@@ -77,6 +77,12 @@ b.copy('a', 'b')                            # 将'a' 拷贝至'b'
 b.move('a', 'b')                            # 将'a' 改名为'b'
 ```
 
+#### 抓取(fetch)文件
+```python
+b.fetch('http://www.baidu.com/', 'baidu.html')  # 抓取百度首页, 指定文件名为'baidu.html'
+b.fetch('http://www.baidu.com/')                # 抓取百度首页, 不指定文件名
+```
+
 有没有觉得比官方SDK容易使用多呢？
 
 --------
